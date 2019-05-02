@@ -166,7 +166,7 @@ def logistic_regression_test_solver(examples, kfolds, target_index, feature_indi
   '''
   solvers = ['lbfgs', 'liblinear', 'sag'] #newton-cg is way too slow
   best_solver = ''; max_mean_fmeasure = -1
-  for solver_ in penalties:
+  for solver_ in solvers:
     tmp = params
     tmp['solver'] = solver_
     accs, precs, recs, fmeasures = logistic_regression(examples, kfolds.split(examples), target_index, feature_indices, params=tmp, sampling=sampling)
