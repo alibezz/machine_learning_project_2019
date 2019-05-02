@@ -34,7 +34,7 @@ def get_cross_validation_folds(k):
 
 def separate_features_and_target(examples, target_index, feature_indices):
   X = np.array([element[feature_indices] for element in examples])
-  y = np.array([element[target_index] for element in examples])
+  y = np.array([element[target_index] for element in examples])  
   return X, y
 
 def normalize_with_zscores(data):
@@ -132,11 +132,29 @@ if __name__ == '__main__':
   kfolds = get_cross_validation_folds(int(sys.argv[2]))
   
   ### test logistic regression model ### 
-#   print 'LOGISTIC REGRESSION'
-#   accs, precs, recs = logistic_regression(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), sampling='under', params={'solver':'lbfgs', 'multi_class':'multinomial'})
-#   print 'average accuracy for 5 folds', np.mean(accs)
-#   print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
-#   print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+  print 'LOGISTIC REGRESSION -- STANDARD'
+  accs, precs, recs = logistic_regression(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]))
+  print 'average accuracy for 5 folds', np.mean(accs)
+  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+
+  print 'LOGISTIC REGRESSION -- SOLVER/MULTICLASS TWEAKS'
+  accs, precs, recs = logistic_regression(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]), params={'solver':'lbfgs', 'multi_class':'multinomial'})
+  print 'average accuracy for 5 folds', np.mean(accs)
+  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+
+  print 'LOGISTIC REGRESSION -- SOLVER/MULTICLASS TWEAKS -- UNDERSAMPLING'
+  accs, precs, recs = logistic_regression(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]), params={'solver':'lbfgs', 'multi_class':'multinomial'}, sampling='under')
+  print 'average accuracy for 5 folds', np.mean(accs)
+  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+
+  print 'LOGISTIC REGRESSION -- SOLVER/MULTICLASS TWEAKS -- OVERSAMPLING'
+  accs, precs, recs = logistic_regression(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]), params={'solver':'lbfgs', 'multi_class':'multinomial'}, sampling='over')
+  print 'average accuracy for 5 folds', np.mean(accs)
+  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
 
 #   ### test svm ###
 #   print 'SVM'
@@ -146,8 +164,26 @@ if __name__ == '__main__':
 #   print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
 
   ### test random forest ###
-#   print 'RANDOM FOREST'
-#   accs, precs, recs = random_forest(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), sampling='over', params={'n_estimators':100, 'max_depth':2, 'random_state':0})
-#   print 'average accuracy for 5 folds', np.mean(accs)
-#   print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
-#   print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+  print 'RANDOM FOREST -- STANDARD'
+  accs, precs, recs = random_forest(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]))
+  print 'average accuracy for 5 folds', np.mean(accs)
+  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+
+  print 'RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH'
+  accs, precs, recs = random_forest(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), params={'n_estimators':100, 'max_depth':2, 'random_state':0})
+  print 'average accuracy for 5 folds', np.mean(accs)
+  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+
+  print 'RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH -- UNDERSAMPLING'
+  accs, precs, recs = random_forest(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), sampling='under', params={'n_estimators':100, 'max_depth':2, 'random_state':0})
+  print 'average accuracy for 5 folds', np.mean(accs)
+  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+
+  print 'RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH -- OVERSAMPLING'
+  accs, precs, recs = random_forest(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), sampling='over', params={'n_estimators':100, 'max_depth':2, 'random_state':0})
+  print 'average accuracy for 5 folds', np.mean(accs)
+  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
