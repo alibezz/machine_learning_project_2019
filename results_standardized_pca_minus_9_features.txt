@@ -1,0 +1,39 @@
+LOGISTIC REGRESSION -- STANDARD
+average accuracy for 5 folds 0.8883665810784119
+average precision for class NO 0.8884434275255673 average precision for class YES 0.2
+average recall for class NO 0.9999000618103585 average recall for class YES 0.0001773453240945501
+
+LOGISTIC REGRESSION -- SOLVER/MULTICLASS TWEAKS
+average accuracy for 5 folds 0.8883665810784119
+average precision for class NO 0.8884434275255673 average precision for class YES 0.2
+average recall for class NO 0.9999000618103585 average recall for class YES 0.0001773453240945501
+
+LOGISTIC REGRESSION -- SOLVER/MULTICLASS TWEAKS -- UNDERSAMPLING
+average accuracy for 5 folds 0.564447955757456
+average precision for class NO 0.9005814189388346 average precision for class YES 0.127389528437383
+average recall for class NO 0.5730392898966545 average recall for class YES 0.4962177315299524
+
+LOGISTIC REGRESSION -- SOLVER/MULTICLASS TWEAKS -- OVERSAMPLING
+average accuracy for 5 folds 0.5808710250839424
+average precision for class NO 0.9001604622040663 average precision for class YES 0.128213194143393
+average recall for class NO 0.594134686619404 average recall for class YES 0.4752394883845854
+
+RANDOM FOREST -- STANDARD
+average accuracy for 5 folds 0.8850780169859768
+average precision for class NO 0.8885528071089039 average precision for class YES 0.13654903877484523
+average recall for class NO 0.995509359785349 average recall for class YES 0.005670467674066327
+
+RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH
+average accuracy for 5 folds 0.8884357100533281
+average precision for class NO 0.8884357100533281 average precision for class YES 0.0
+average recall for class NO 1.0 average recall for class YES 0.0
+
+RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH -- UNDERSAMPLING
+average accuracy for 5 folds 0.6146059648429785
+average precision for class NO 0.8973790737051288 average precision for class YES 0.12701901731115584
+average recall for class NO 0.6393734339879635 average recall for class YES 0.4176398487221574
+
+RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH -- OVERSAMPLING
+average accuracy for 5 folds 0.6174402528145368
+average precision for class NO 0.8961799076432083 average precision for class YES 0.12532427144399408
+average recall for class NO 0.644014201810271 average recall for class YES 0.4059223671801144

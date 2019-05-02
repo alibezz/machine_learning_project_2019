@@ -1,0 +1,77 @@
+04/29 
+
+RESULTS 1 -- Results obtained with logistic regression over rao_first_numerical_only.csv, using default parameters
+average accuracy for 5 folds 0.8883633247087033
+average precision for class NO 0.8897728590737767 average precision for class YES 0.4878819687774912
+average recall for class NO 0.9979769945823156 average recall for class YES 0.015389744831104765
+
+RESULTS 2 -- Results obtained with logistic regression over rao_first_numerical_only.csv, using parameters {'solver':'lbfgs', 'multi_class':'multinomial'}
+average accuracy for 5 folds 0.8883633247087033
+average precision for class NO 0.8897728590737767 average precision for class YES 0.4878819687774912
+average recall for class NO 0.9979769945823156 average recall for class YES 0.015389744831104765
+
+RESULTS 3 -- Results obtained with SVM (LinearSVC, as sklearn's regular SVM does not scale for our data) over rao_first_numerical_only.csv, with default paramerers
+average accuracy for 5 folds 0.6326777458007007
+average precision for class NO 0.8997334509996098 average precision for class YES 0.39387195877750397
+average recall for class NO 0.6687311730008091 average recall for class YES 0.35033493449775827
+
+RESULTS 4 -- Results obtained with SVM (LinearSVC, as sklearn's regular SVM does not scale for our data) over rao_first_numerical_only.csv, with parameters {'random_state':0, 'tol':1e-5}
+average accuracy for 5 folds 0.649401879690855
+average precision for class NO 0.8974542352865381 average precision for class YES 0.33539869273062195
+average recall for class NO 0.6889520068754238 average recall for class YES 0.3351253130494757
+
+RESULTS 5 -- Results obtained with Random Forest over rao_first_numerical_only.csv, with default paramerers
+average accuracy for 5 folds 0.8784982160911824
+average precision for class NO 0.8898025391752482 average precision for class YES 0.1943080017704375
+average recall for class NO 0.9852623386402002 average recall for class YES 0.028212208593786148
+
+RESULTS 6 -- Results obtained with Random Forest over rao_first_numerical_only.csv, with parameters params={'n_estimators':100, 'max_depth':2, 'random_state':0}
+average accuracy for 5 folds 0.8884423258381455
+average precision for class NO 0.8884423258381455 average precision for class YES 0.0
+average recall for class NO 1.0 average recall for class YES 0.0
+
+=== TESTING OVER/UNDER SAMPLING ===
+RESULTS 7 -- Results obtained with Random Forest over rao_first_numerical_only.csv, with default paramerers AND undersampling
+average accuracy for 5 folds 0.604161360468751
+average precision for class NO 0.9056608288882166 average precision for class YES 0.13818341923947472
+average recall for class NO 0.6189219968304384 average recall for class YES 0.48662577379020255
+
+RESULTS 8 -- Results obtained with Random Forest over rao_first_numerical_only.csv, with default paramerers AND oversampling
+average accuracy for 5 folds 0.8590741375573518
+average precision for class NO 0.8906782804896192 average precision for class YES 0.1609442086549679
+average recall for class NO 0.9590959201306916 average recall for class YES 0.062490180991705155
+
+RESULTS 9 -- Results obtained with Random Forest over rao_first_numerical_only.csv, with parameters params={'n_estimators':100, 'max_depth':2, 'random_state':0} AND undersampling
+average accuracy for 5 folds 0.6892436168788516
+average precision for class NO 0.9136814287985399 average precision for class YES 0.17154028785458608
+average recall for class NO 0.7183232722133852 average recall for class YES 0.45852554129640477
+
+RESULTS 9 -- Results obtained with Random Forest over rao_first_numerical_only.csv, with parameters params={'n_estimators':100, 'max_depth':2, 'random_state':0} AND oversampling
+average accuracy for 5 folds 0.6821136919342881
+average precision for class NO 0.9135896559151624 average precision for class YES 0.16998461010589225
+average recall for class NO 0.7096332751858443 average recall for class YES 0.4640063971478853
+
+RESULTS 10 -- Results obtained with logistic regression over rao_first_numerical_only.csv, using default parameters AND oversampling
+average accuracy for 5 folds 0.6843164866970592
+average precision for class NO 0.9139404321509609 average precision for class YES 0.16890017234179117
+average recall for class NO 0.7116967875197321 average recall for class YES 0.4662865741763079
+
+RESULTS 11 -- Results obtained with logistic regression over rao_first_numerical_only.csv, using default parameters AND undersampling
+average accuracy for 5 folds 0.6838128512667673
+average precision for class NO 0.9138337862621217 average precision for class YES 0.16850120414608744
+average recall for class NO 0.7111722209185818 average recall for class YES 0.4659232581580854
+
+RESULTS 12 -- Results obtained with logistic regression over rao_first_numerical_only.csv, using parameters {'solver':'lbfgs', 'multi_class':'multinomial'} AND oversampling
+average accuracy for 5 folds 0.6842078632522839
+average precision for class NO 0.9139387314760837 average precision for class YES 0.1688585637142137
+average recall for class NO 0.7115632036258271 average recall for class YES 0.46637356852167544
+
+RESULTS 13 -- Results obtained with logistic regression over rao_first_numerical_only.csv, using parameters {'solver':'lbfgs', 'multi_class':'multinomial'} AND undersampling
+average accuracy for 5 folds 0.6837634739153442
+average precision for class NO 0.9138389807942289 average precision for class YES 0.1685002108155297
+average recall for class NO 0.7111056901047715 average recall for class YES 0.4660113250889529
+
+*** SVM results take a bit to run and don't seem to be worth the investment, if one considers the results we previously got.
+
+
+

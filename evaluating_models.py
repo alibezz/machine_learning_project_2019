@@ -158,10 +158,10 @@ if __name__ == '__main__':
 
 #   ### test svm ###
   print 'SVM'
-  accs, precs, recs = svm_(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]), sampling='over')# params={'random_state':0, 'tol':1e-5})
-  print 'average accuracy for 5 folds', np.mean(accs)
-  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
-  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+#   accs, precs, recs = svm_(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]), sampling='over')# params={'random_state':0, 'tol':1e-5})
+#   print 'average accuracy for 5 folds', np.mean(accs)
+#   print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+#   print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
 
   ### test random forest ###
   print 'RANDOM FOREST -- STANDARD'
