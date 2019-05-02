@@ -6,8 +6,14 @@ Given a data set that has already been totally preprocessed, this code
 
 #TODO balance the data before training and see if it helps
 #TODO the data given to us will be messy, so we should clean it beforehand as well
+#TODO Implement PCA to reduce features, but also to create features
+#TODO Implement different normalization techniques
 #TODO when performing feature selection, compare validation and insample error to check for over/underfitting
 #TODO test with the data sent to us for leaderboard
+#TODO Transform just a few features (Linda's suggestion)
+#TODO See how the features correlate with the target (someone wrote it on piazza)
+#TODO Discuss bias and variance (insample vs. validation error plots) when doing feature creation/selection (Linda liked it)
+#TODO Use Adaboost or some ensemble technique
 
 import sys
 import numpy as np
@@ -17,10 +23,12 @@ from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.preprocessing import StandardScaler
+from collections import Counter
+from sklearn.utils import resample
 
 RANDOM_STATE = 42
 
-def get_cross_validation_folds(examples, k):
+def get_cross_validation_folds(k):
   kf = KFold(n_splits=k, random_state=RANDOM_STATE, shuffle=True)
   return kf
 
@@ -34,11 +42,34 @@ def normalize_with_zscores(data):
   scaler.fit(data)
   return scaler.transform(data)
 
-def logistic_regression(examples, kfolds, target_index, feature_indices, params={}):
+def bootstrap_training(training_examples, training_classes):
+  lcc = Counter(training_classes).most_common()[-1] #lcc is the Least Common Class
+  examples_in_lcc = [elem for i, elem in enumerate(training_examples) if training_classes[i] == lcc[0]]
+  number_of_samples = len(training_examples) - 2*len(examples_in_lcc) #by doing so, you end up with the same number of samples per class
+  new_samples = resample(examples_in_lcc, n_samples=number_of_samples, random_state=RANDOM_STATE)
+  training_examples = np.concatenate((training_examples, new_samples))
+  training_classes = np.concatenate((training_classes, [lcc[0] for i in new_samples]))
+  return training_examples, training_classes
+
+def undersample_training(training_examples, training_classes):
+  mcc = Counter(training_classes).most_common()[0] #lcc is the Most Common Class
+  lcc = Counter(training_classes).most_common()[-1]
+  examples_in_mcc = [elem for i, elem in enumerate(training_examples) if training_classes[i] == mcc[0]]
+  number_of_samples = len(training_examples) - len(examples_in_mcc) #we undersample to the same number of samples in the least common class
+  new_samples = resample(examples_in_mcc, n_samples=number_of_samples, random_state=RANDOM_STATE)
+  training_examples = np.concatenate((new_samples, [elem for i, elem in enumerate(training_examples) if training_classes[i] == lcc[0]]))
+  training_classes = np.concatenate(([mcc[0] for i in new_samples], [lcc[0] for i in xrange(number_of_samples)]))
+  return training_examples, training_classes
+
+def logistic_regression(examples, kfolds, target_index, feature_indices, params={}, sampling=None):
   lr = LogisticRegression(**params)
   precs = []; recs = []; accs = []
   for train_index, test_index in kfolds:
     X_train, y_train = separate_features_and_target(examples[train_index], target_index, feature_indices)
+    if sampling == 'over': #bootstrap training samples in the minority class 
+      X_train, y_train = bootstrap_training(X_train, y_train)
+    elif sampling == 'under': #reduce the number of samples in the majority class
+      X_train, y_train = undersample_training(X_train, y_train)
     clf = lr.fit(X_train, y_train)
     X_test, y_test = separate_features_and_target(examples[test_index], target_index, feature_indices)
     y_pred = clf.predict(X_test)
@@ -48,11 +79,15 @@ def logistic_regression(examples, kfolds, target_index, feature_indices, params=
     accs.append(clf.score(X_test, y_test))
   return accs, precs, recs
 
-def svm_(examples, kfolds, target_index, feature_indices, params={}):
+def svm_(examples, kfolds, target_index, feature_indices, params={}, sampling=None):
   svc = LinearSVC(**params)
   precs = []; recs = []; accs = []
   for train_index, test_index in kfolds:
     X_train, y_train = separate_features_and_target(examples[train_index], target_index, feature_indices)
+    if sampling == 'over': #bootstrap training samples in the minority class 
+      X_train, y_train = bootstrap_training(X_train, y_train)
+    elif sampling == 'under': #reduce the number of samples in the majority class
+      X_train, y_train = undersample_training(X_train, y_train)
     #X_train = normalize_with_zscores(X_train)
     clf = svc.fit(X_train, [int(i) for i in y_train])
     X_test, y_test = separate_features_and_target(examples[test_index], target_index, feature_indices)
@@ -64,11 +99,15 @@ def svm_(examples, kfolds, target_index, feature_indices, params={}):
     accs.append(clf.score(X_test, y_test))
   return accs, precs, recs 
 
-def random_forest(examples, kfolds, target_index, feature_indices, params={}):
+def random_forest(examples, kfolds, target_index, feature_indices, params={}, sampling=None):
   rf = RandomForestClassifier(**params)
   precs = []; recs = []; accs = []
   for train_index, test_index in kfolds:
     X_train, y_train = separate_features_and_target(examples[train_index], target_index, feature_indices)
+    if sampling == 'over': #bootstrap training samples in the minority class 
+      X_train, y_train = bootstrap_training(X_train, y_train)
+    elif sampling == 'under': #reduce the number of samples in the majority class
+      X_train, y_train = undersample_training(X_train, y_train)
     #X_train = normalize_with_zscores(X_train)
     clf = rf.fit(X_train, [int(i) for i in y_train])
     X_test, y_test = separate_features_and_target(examples[test_index], target_index, feature_indices)
@@ -90,25 +129,25 @@ if __name__ == '__main__':
   argv[2] => hyperparameter K for k-fold cross-validation
   '''
   examples = process_input(sys.argv[1]) 
-  kfolds = get_cross_validation_folds(examples, int(sys.argv[2]))
-
+  kfolds = get_cross_validation_folds(int(sys.argv[2]))
+  
   ### test logistic regression model ### 
 #   print 'LOGISTIC REGRESSION'
-#   accs, precs, recs = logistic_regression(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), params={'solver':'lbfgs', 'multi_class':'multinomial'})
+#   accs, precs, recs = logistic_regression(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), sampling='under', params={'solver':'lbfgs', 'multi_class':'multinomial'})
 #   print 'average accuracy for 5 folds', np.mean(accs)
 #   print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
 #   print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
 
 #   ### test svm ###
 #   print 'SVM'
-#   accs, precs, recs = svm_(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), params={'random_state':0, 'tol':1e-5})
+#   accs, precs, recs = svm_(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), sampling='over')# params={'random_state':0, 'tol':1e-5})
 #   print 'average accuracy for 5 folds', np.mean(accs)
 #   print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
 #   print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
 
   ### test random forest ###
-  print 'RANDOM FOREST'
-  accs, precs, recs = random_forest(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), params={'n_estimators':100, 'max_depth':2, 'random_state':0})
-  print 'average accuracy for 5 folds', np.mean(accs)
-  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
-  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+#   print 'RANDOM FOREST'
+#   accs, precs, recs = random_forest(examples, kfolds.split(examples), -1, np.array([0, 1, 2, 3, 4, 5, 6,7, 8, 9, 10]), sampling='over', params={'n_estimators':100, 'max_depth':2, 'random_state':0})
+#   print 'average accuracy for 5 folds', np.mean(accs)
+#   print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+#   print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
