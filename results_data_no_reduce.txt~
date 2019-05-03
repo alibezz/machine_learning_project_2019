@@ -1,0 +1,32 @@
+LOGISTIC REGRESSION -- STANDARD
+average accuracy for 5 folds 0.888251385625
+average precision for class NO 0.889873682761 average precision for class YES 0.478715379591
+average recall for class NO 0.997687909452 average recall for class YES 0.01673889104
+LOGISTIC REGRESSION -- SOLVER/MULTICLASS TWEAKS
+average accuracy for 5 folds 0.888221760872
+average precision for class NO 0.889909150781 average precision for class YES 0.475255605817
+average recall for class NO 0.997599050687 average recall for class YES 0.0171833084897
+LOGISTIC REGRESSION -- SOLVER/MULTICLASS TWEAKS -- UNDERSAMPLING
+average accuracy for 5 folds 0.662956875205
+average precision for class NO 0.923847851376 average precision for class YES 0.177447395146
+average recall for class NO 0.67640552418 average recall for class YES 0.555876370094
+LOGISTIC REGRESSION -- SOLVER/MULTICLASS TWEAKS -- OVERSAMPLING
+average accuracy for 5 folds 0.67113360889
+average precision for class NO 0.92374571099 average precision for class YES 0.180185601415
+average recall for class NO 0.686520536347 average recall for class YES 0.548549677804
+RANDOM FOREST -- STANDARD
+average accuracy for 5 folds 0.886710856042
+average precision for class NO 0.890176344208 average precision for class YES 0.372720923218
+average recall for class NO 0.995276509322 average recall for class YES 0.0221414357245
+RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH
+average accuracy for 5 folds 0.888439020438
+average precision for class NO 0.888439020438 average precision for class YES 0.0
+average recall for class NO 1.0 average recall for class YES 0.0
+RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH -- UNDERSAMPLING
+average accuracy for 5 folds 0.625697534328
+average precision for class NO 0.925673191177 average precision for class YES 0.16838470563
+average recall for class NO 0.629264855486 average recall for class YES 0.597502776804
+RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH -- OVERSAMPLING
+average accuracy for 5 folds 0.642209036627
+average precision for class NO 0.924729884692 average precision for class YES 0.172244402959
+average recall for class NO 0.650299299429 average recall for class YES 0.578216768186
