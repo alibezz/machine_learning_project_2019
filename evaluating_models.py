@@ -87,6 +87,7 @@ def logistic_regression_test_sampling(examples, kfolds, target_index, feature_in
   sampling_schemes = [None, 'over', 'under']
   best_scheme = ''; max_mean_fmeasure = -1
   for samp in sampling_schemes:
+    print 'scheme =', samp
     accs, precs, recs, fmeasures = logistic_regression(examples, kfolds.split(examples), target_index, feature_indices, sampling=samp)
     print 'average accuracy for folds', np.mean(accs)
     print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
@@ -171,6 +172,7 @@ def random_forest_test_sampling(examples, kfolds, target_index, feature_indices)
   sampling_schemes = [None, 'over', 'under']
   best_scheme = ''; max_mean_fmeasure = -1
   for samp in sampling_schemes:
+    print 'scheme =', samp
     accs, precs, recs, fmeasures = random_forest(examples, kfolds.split(examples), target_index, feature_indices, sampling=samp)
     print 'average accuracy for folds', np.mean(accs)
     print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
@@ -181,6 +183,22 @@ def random_forest_test_sampling(examples, kfolds, target_index, feature_indices)
       best_scheme = samp
       max_mean_fmeasure = mean_overall_fmeasure
   return best_scheme
+
+def random_forest_test_n_estimators(examples, kfolds,  target_index, feature_indices, params={}, sampling=None):
+  n_estimators = [5, 10, 25, 50, 75, 100]
+  return core_testing(random_forest, examples, kfolds, target_index, feature_indices, n_estimators, param_name='n_estimators', params=params, sampling=sampling)
+
+def random_forest_test_criterion(examples, kfolds,  target_index, feature_indices, params={}, sampling=None):
+  criteria = ['gini', 'entropy']
+  return core_testing(random_forest, examples, kfolds, target_index, feature_indices, criteria, param_name='criterion', params=params, sampling=sampling)
+
+def random_forest_test_depth(examples, kfolds,  target_index, feature_indices, params={}, sampling=None):
+  depths = [2, 4, 8, 16, 32, 64, None]
+  return core_testing(random_forest, examples, kfolds, target_index, feature_indices, depths, param_name='max_depth', params=params, sampling=sampling)
+
+def random_forest_test_max_features(examples, kfolds,  target_index, feature_indices, params={}, sampling=None):
+  max_features = ['auto', 'sqrt', 'log2', None]
+  return core_testing(random_forest, examples, kfolds, target_index, feature_indices, max_features, param_name='max_features', params=params, sampling=sampling)
 
 def process_input(filename):
   lines = [np.array([float(i) for i in l.strip().split(',')]) for l in open(filename, 'r').readlines()[1:]] #disconsidering header
@@ -195,20 +213,20 @@ if __name__ == '__main__':
   kfolds = get_cross_validation_folds(int(sys.argv[2]))
   
   ### test logistic regression model ###
-  # print 'LOGISTIC REGRESSION -- STANDARD'
-  # accs, precs, recs, fmeasures = logistic_regression(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]))
-  # print 'average accuracy for folds', np.mean(accs)
-  # print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
-  # print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])
-  # mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
-  # print 'average fmeasure for both classes', mean_overall_fmeasure 
+  print 'LOGISTIC REGRESSION -- STANDARD'
+  accs, precs, recs, fmeasures = logistic_regression(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]))
+  print 'average accuracy for folds', np.mean(accs)
+  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])
+  mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
+  print 'average fmeasure for both classes', mean_overall_fmeasure 
   
-  # print 'LOGISTIC REGRESSION -- VARYING SAMPLING SCHEME'
-  # best_sampling = logistic_regression_test_sampling(examples, kfolds, -1, np.array([i for i in xrange(113)]))
-  # print 'Best sampling scheme =', best_sampling
-  # print 'LOGISTIC REGRESSION -- VARYING C -- SAMPLING =', best_sampling
-  # best_C = logistic_regression_test_C(examples, kfolds, -1, np.array([i for i in xrange(113)]), sampling=best_sampling)
-  # print 'Best C =', best_C
+  print 'LOGISTIC REGRESSION -- VARYING SAMPLING SCHEME'
+  best_sampling = logistic_regression_test_sampling(examples, kfolds, -1, np.array([i for i in xrange(113)]))
+  print 'Best sampling scheme =', best_sampling
+  print 'LOGISTIC REGRESSION -- VARYING C -- SAMPLING =', best_sampling
+  best_C = logistic_regression_test_C(examples, kfolds, -1, np.array([i for i in xrange(113)]), sampling=best_sampling)
+  print 'Best C =', best_C
   best_sampling = 'over'; best_C = 100
   print 'LOGISTIC REGRESSION -- C =', best_C, '-- VARYING CLASS_WEIGHT -- SAMPLING =', best_sampling
   best_class_weight = logistic_regression_test_class_weight(examples, kfolds, -1, np.array([i for i in xrange(113)]), sampling=best_sampling, params={'C':best_C})
@@ -223,33 +241,28 @@ if __name__ == '__main__':
   print 'Best solver =', best_solver
   
   ### test random forest model ###
-  # print 'RANDOM FOREST -- STANDARD'
-  # accs, precs, recs, fmeasures = random_forest(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]))
-  # print 'average accuracy for folds', np.mean(accs)
-  # print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
-  # print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
-  # mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
-  # print 'average fmeasure for both classes', mean_overall_fmeasure
-  # print 'RANDOM FOREST -- VARYING SAMPLING SCHEME'
-  # best_sampling = random_forest_test_sampling(examples, kfolds, -1, np.array([i for i in xrange(113)]))
-  # print 'Best sampling scheme =', best_sampling
+  print 'RANDOM FOREST -- STANDARD'
+  accs, precs, recs, fmeasures = random_forest(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]))
+  print 'average accuracy for folds', np.mean(accs)
+  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+  mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
+  print 'average fmeasure for both classes', mean_overall_fmeasure
+  print 'RANDOM FOREST -- VARYING SAMPLING SCHEME'
+  best_sampling = random_forest_test_sampling(examples, kfolds, -1, np.array([i for i in xrange(113)]))
+  print 'Best sampling scheme =', best_sampling
   
-  # print 'RANDOM FOREST -- VARYING N_ESTIMATORS'
-  # best_n = random_forest_test_n_estimators(examples, kfolds, -1, np.array([i for i in xrange(113)]), sampling=best_sampling)
-  # print 'Best number of estimators =', best_n
-  # accs, precs, recs = random_forest(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]), params={'n_estimators':100, 'max_depth':2, 'random_state':0})
-  # print 'average accuracy for 5 folds', np.mean(accs)
-  # print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
-  # print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
-
-  # print 'RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH -- UNDERSAMPLING'
-  # accs, precs, recs = random_forest(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]), sampling='under', params={'n_estimators':100, 'max_depth':2, 'random_state':0})
-  # print 'average accuracy for 5 folds', np.mean(accs)
-  # print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
-  # print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
-
-  # print 'RANDOM FOREST -- N_ESTIMATORS/MAX_DEPTH -- OVERSAMPLING'
-  # accs, precs, recs = random_forest(examples, kfolds.split(examples), -1, np.array([i for i in xrange(113)]), sampling='over', params={'n_estimators':100, 'max_depth':2, 'random_state':0})
-  # print 'average accuracy for 5 folds', np.mean(accs)
-  # print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
-  # print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+  print 'RANDOM FOREST -- VARYING N_ESTIMATORS -- SAMPLING =', best_sampling
+  best_n = random_forest_test_n_estimators(examples, kfolds, -1, np.array([i for i in xrange(113)]), sampling=best_sampling)
+  print 'Best number of estimators =', best_n
+  print 'RANDOM FOREST -- VARYING CRITERION -- N_ESTIMATORS =', best_n, '-- SAMPLING =', best_sampling
+  best_criterion = random_forest_test_criterion(examples, kfolds, -1, np.array([i for i in xrange(113)]), params={'n_estimators':best_n}, sampling=best_sampling)
+  print 'Best criterion =', best_criterion
+  print 'RANDOM FOREST -- VARYING DEPTH -- CRITERION =', best_criterion, '-- N_ESTIMATORS =', best_n, '-- SAMPLING =', best_sampling
+  best_depth = random_forest_test_depth(examples, kfolds, -1, np.array([i for i in xrange(113)]),
+                                                params={'n_estimators':best_n, 'criterion':best_criterion}, sampling=best_sampling)
+  print 'Best depth =', best_depth
+  print 'RANDOM FOREST -- VARYING MAX FEATURES -- DEPTH =', best_depth, '-- CRITERION =', best_criterion, '-- N_ESTIMATORS =', best_n, '-- SAMPLING =', best_sampling
+  best_max_features = random_forest_test_max_features(examples, kfolds, -1, np.array([i for i in xrange(113)]),
+                                                params={'n_estimators':best_n, 'criterion':best_criterion, 'max_depth':best_depth}, sampling=best_sampling)
+  print 'Best max features =', best_max_features
