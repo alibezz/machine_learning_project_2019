@@ -19,8 +19,9 @@ import sys
 import numpy as np
 from sklearn.model_selection import KFold 
 from sklearn.linear_model import LogisticRegression
-from sklearn.svm import LinearSVC
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import precision_recall_fscore_support
 from sklearn.preprocessing import StandardScaler
 from collections import Counter
@@ -156,10 +157,8 @@ def random_forest(examples, kfolds, target_index, feature_indices, params={}, sa
       X_train, y_train = bootstrap_training(X_train, y_train)
     elif sampling == 'under': #reduce the number of samples in the majority class
       X_train, y_train = undersample_training(X_train, y_train)
-    #X_train = normalize_with_zscores(X_train)
     clf = rf.fit(X_train, [int(i) for i in y_train])
     X_test, y_test = separate_features_and_target(examples[test_index], target_index, feature_indices)
-    #X_test = normalize_with_zscores(X_test)
     y_pred = clf.predict(X_test)
     results = precision_recall_fscore_support(y_test, y_pred)
     precs.append(results[0])
@@ -200,6 +199,69 @@ def random_forest_test_max_features(examples, kfolds,  target_index, feature_ind
   max_features = ['auto', 'sqrt', 'log2', None]
   return core_testing(random_forest, examples, kfolds, target_index, feature_indices, max_features, param_name='max_features', params=params, sampling=sampling)
 
+def adaboost(examples, kfolds, target_index, feature_indices, params={}, sampling=None):
+  ab =  AdaBoostClassifier(**params)
+  precs = []; recs = []; accs = []; fmeasures = []
+  for train_index, test_index in kfolds:
+    X_train, y_train = separate_features_and_target(examples[train_index], target_index, feature_indices)
+    if sampling == 'over': #bootstrap training samples in the minority class 
+      X_train, y_train = bootstrap_training(X_train, y_train)
+    elif sampling == 'under': #reduce the number of samples in the majority class
+      X_train, y_train = undersample_training(X_train, y_train)
+    clf = ab.fit(X_train, [int(i) for i in y_train])
+    X_test, y_test = separate_features_and_target(examples[test_index], target_index, feature_indices)
+    y_pred = clf.predict(X_test)
+    results = precision_recall_fscore_support(y_test, y_pred)
+    precs.append(results[0])
+    recs.append(results[1])
+    accs.append(clf.score(X_test, y_test))
+    fmeasures.append((get_fmeasure(results[0][0], results[1][0]), get_fmeasure(results[0][1], results[1][1])))
+  return accs, precs, recs, fmeasures 
+
+def adaboost_test_sampling(examples, kfolds, target_index, feature_indices):
+  sampling_schemes = [None, 'over', 'under']
+  best_scheme = ''; max_mean_fmeasure = -1
+  for samp in sampling_schemes:
+    print 'scheme =', samp
+    accs, precs, recs, fmeasures = adaboost(examples, kfolds.split(examples), target_index, feature_indices, sampling=samp)
+    print 'average accuracy for folds', np.mean(accs)
+    print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+    print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])
+    mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
+    print 'average fmeasure for both classes', mean_overall_fmeasure 
+    if mean_overall_fmeasure > max_mean_fmeasure:
+      best_scheme = samp
+      max_mean_fmeasure = mean_overall_fmeasure
+  return best_scheme
+
+def adaboost_test_tree_depth(examples, kfolds, target_index, feature_indices, params={}, sampling=None):
+  tree_depths = [DecisionTreeClassifier(max_depth=1), DecisionTreeClassifier(max_depth=2), DecisionTreeClassifier(max_depth=4), DecisionTreeClassifier(max_depth=8)]
+  return core_testing(adaboost, examples, kfolds, target_index, feature_indices, tree_depths, param_name='base_estimator', params=params, sampling=sampling)
+
+  best_depth = ''; max_mean_fmeasure = -1
+  for depth in tree_depths:
+    print 'depth =', depth
+    accs, precs, recs, fmeasures = adaboost(examples, kfolds.split(examples), target_index, feature_indices, max_tree_depth=depth, sampling=sampling)
+    print 'average accuracy for folds', np.mean(accs)
+    print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+    print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])
+    mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
+    print 'average fmeasure for both classes', mean_overall_fmeasure 
+    if mean_overall_fmeasure > max_mean_fmeasure:
+      best_depth = depth
+      max_mean_fmeasure = mean_overall_fmeasure
+  return best_depth
+
+def adaboost_test_n_estimators(examples, kfolds, target_index, feature_indices, tree_depth=1, params={}, sampling=None):
+  n_estimators = [10, 25, 50, 100, 200, 500]
+  params['base_estimator'] = DecisionTreeClassifier(max_depth=tree_depth)
+  return core_testing(adaboost, examples, kfolds, target_index, feature_indices, n_estimators, param_name='n_estimators', params=params, sampling=sampling)
+
+def adaboost_test_boosting(examples, kfolds, target_index, feature_indices, tree_depth=1, params={}, sampling=None):
+  boosting = ['SAMME', 'SAMME.R']
+  params['base_estimator'] = DecisionTreeClassifier(max_depth=tree_depth)
+  return core_testing(adaboost, examples, kfolds, target_index, feature_indices, boosting, param_name='algorithm', params=params, sampling=sampling)
+
 def process_input(filename):
   lines = [np.array([float(i) for i in l.strip().split(',')]) for l in open(filename, 'r').readlines()[1:]] #disconsidering header
   return np.array(lines)
@@ -213,56 +275,76 @@ if __name__ == '__main__':
   kfolds = get_cross_validation_folds(int(sys.argv[2]))
   num_features = len(examples[0]) - 1 #one field is the target  
   ### test logistic regression model ###
-  print 'LOGISTIC REGRESSION -- STANDARD'
-  accs, precs, recs, fmeasures = logistic_regression(examples, kfolds.split(examples), -1, np.array([i for i in xrange(num_features)]))
-  print 'average accuracy for folds', np.mean(accs)
-  print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
-  print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])
-  mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
-  print 'average fmeasure for both classes', mean_overall_fmeasure 
+  # print 'LOGISTIC REGRESSION -- STANDARD'
+  # accs, precs, recs, fmeasures = logistic_regression(examples, kfolds.split(examples), -1, np.array([i for i in xrange(num_features)]))
+  # print 'average accuracy for folds', np.mean(accs)
+  # print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  # print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])
+  # mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
+  # print 'average fmeasure for both classes', mean_overall_fmeasure 
   
-  print 'LOGISTIC REGRESSION -- VARYING SAMPLING SCHEME'
-  best_sampling = logistic_regression_test_sampling(examples, kfolds, -1, np.array([i for i in xrange(num_features)]))
-  print 'Best sampling scheme =', best_sampling
-  print 'LOGISTIC REGRESSION -- VARYING C -- SAMPLING =', best_sampling
-  best_C = logistic_regression_test_C(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling)
-  print 'Best C =', best_C
-  best_sampling = 'over'; best_C = 100
-  print 'LOGISTIC REGRESSION -- C =', best_C, '-- VARYING CLASS_WEIGHT -- SAMPLING =', best_sampling
-  best_class_weight = logistic_regression_test_class_weight(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling, params={'C':best_C})
-  print 'Best class_weight =', best_class_weight
-  print 'LOGISTIC REGRESSION -- C =', best_C, '-- class_weight =', best_class_weight, '-- VARYING PENALTY -- SAMPLING =', best_sampling
-  best_penalty = logistic_regression_test_penalty(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling,
-                                                       params={'C':best_C, 'class_weight':best_class_weight})
-  print best_penalty
-  print 'LOGISTIC REGRESSION -- C =', best_C, '-- class_weight =', best_class_weight, '-- penalty =', best_penalty, '-- VARYING SOLVER -- SAMPLING =', best_sampling
-  #unfortunately, we have to use penalty = l2 regardless, as some solvers do not work with l1
-  best_solver = logistic_regression_test_solver(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling, params={'C':best_C, 'class_weight':best_class_weight})
-  print 'Best solver =', best_solver
+  # print 'LOGISTIC REGRESSION -- VARYING SAMPLING SCHEME'
+  # best_sampling = logistic_regression_test_sampling(examples, kfolds, -1, np.array([i for i in xrange(num_features)]))
+  # print 'Best sampling scheme =', best_sampling
+  # print 'LOGISTIC REGRESSION -- VARYING C -- SAMPLING =', best_sampling
+  # best_C = logistic_regression_test_C(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling)
+  # print 'Best C =', best_C
+  # best_sampling = 'over'; best_C = 100
+  # print 'LOGISTIC REGRESSION -- C =', best_C, '-- VARYING CLASS_WEIGHT -- SAMPLING =', best_sampling
+  # best_class_weight = logistic_regression_test_class_weight(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling, params={'C':best_C})
+  # print 'Best class_weight =', best_class_weight
+  # print 'LOGISTIC REGRESSION -- C =', best_C, '-- class_weight =', best_class_weight, '-- VARYING PENALTY -- SAMPLING =', best_sampling
+  # best_penalty = logistic_regression_test_penalty(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling,
+  #                                                      params={'C':best_C, 'class_weight':best_class_weight})
+  # print best_penalty
+  # print 'LOGISTIC REGRESSION -- C =', best_C, '-- class_weight =', best_class_weight, '-- penalty =', best_penalty, '-- VARYING SOLVER -- SAMPLING =', best_sampling
+  # #unfortunately, we have to use penalty = l2 regardless, as some solvers do not work with l1
+  # best_solver = logistic_regression_test_solver(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling, params={'C':best_C, 'class_weight':best_class_weight})
+  # print 'Best solver =', best_solver
   
-  ### test random forest model ###
-  print 'RANDOM FOREST -- STANDARD'
-  accs, precs, recs, fmeasures = random_forest(examples, kfolds.split(examples), -1, np.array([i for i in xrange(num_features)]))
+  # ### test random forest model ###
+  # print 'RANDOM FOREST -- STANDARD'
+  # accs, precs, recs, fmeasures = random_forest(examples, kfolds.split(examples), -1, np.array([i for i in xrange(num_features)]))
+  # print 'average accuracy for folds', np.mean(accs)
+  # print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
+  # print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
+  # mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
+  # print 'average fmeasure for both classes', mean_overall_fmeasure
+  # print 'RANDOM FOREST -- VARYING SAMPLING SCHEME'
+  # best_sampling = random_forest_test_sampling(examples, kfolds, -1, np.array([i for i in xrange(num_features)]))
+  # print 'Best sampling scheme =', best_sampling
+  
+  # print 'RANDOM FOREST -- VARYING N_ESTIMATORS -- SAMPLING =', best_sampling
+  # best_n = random_forest_test_n_estimators(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling)
+  # print 'Best number of estimators =', best_n
+  # print 'RANDOM FOREST -- VARYING CRITERION -- N_ESTIMATORS =', best_n, '-- SAMPLING =', best_sampling
+  # best_criterion = random_forest_test_criterion(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), params={'n_estimators':best_n}, sampling=best_sampling)
+  # print 'Best criterion =', best_criterion
+  # print 'RANDOM FOREST -- VARYING DEPTH -- CRITERION =', best_criterion, '-- N_ESTIMATORS =', best_n, '-- SAMPLING =', best_sampling
+  # best_depth = random_forest_test_depth(examples, kfolds, -1, np.array([i for i in xrange(num_features)]),
+  #                                               params={'n_estimators':best_n, 'criterion':best_criterion}, sampling=best_sampling)
+  # print 'Best depth =', best_depth
+  # print 'RANDOM FOREST -- VARYING MAX FEATURES -- DEPTH =', best_depth, '-- CRITERION =', best_criterion, '-- N_ESTIMATORS =', best_n, '-- SAMPLING =', best_sampling
+  # best_max_features = random_forest_test_max_features(examples, kfolds, -1, np.array([i for i in xrange(num_features)]),
+  #                                               params={'n_estimators':best_n, 'criterion':best_criterion, 'max_depth':best_depth}, sampling=best_sampling)
+  # print 'Best max features =', best_max_features
+
+  ### test adaboost model ###
+  print 'ADABOOST WITH SHALLOW DECISION TREES -- STANDARD'
+  accs, precs, recs, fmeasures = adaboost(examples, kfolds.split(examples), -1, np.array([i for i in xrange(num_features)]))
   print 'average accuracy for folds', np.mean(accs)
   print 'average precision for class NO', np.mean([i[0] for i in precs]), 'average precision for class YES', np.mean([i[1] for i in precs])  
   print 'average recall for class NO', np.mean([i[0] for i in recs]), 'average recall for class YES', np.mean([i[1] for i in recs])  
   mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
   print 'average fmeasure for both classes', mean_overall_fmeasure
-  print 'RANDOM FOREST -- VARYING SAMPLING SCHEME'
-  best_sampling = random_forest_test_sampling(examples, kfolds, -1, np.array([i for i in xrange(num_features)]))
+  # print 'ADABOOST WITH SHALLOW DECISION TREES -- VARYING SAMPLING SCHEME'
+  best_sampling = adaboost_test_sampling(examples, kfolds, -1, np.array([i for i in xrange(num_features)]))
   print 'Best sampling scheme =', best_sampling
-  
-  print 'RANDOM FOREST -- VARYING N_ESTIMATORS -- SAMPLING =', best_sampling
-  best_n = random_forest_test_n_estimators(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling)
-  print 'Best number of estimators =', best_n
-  print 'RANDOM FOREST -- VARYING CRITERION -- N_ESTIMATORS =', best_n, '-- SAMPLING =', best_sampling
-  best_criterion = random_forest_test_criterion(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), params={'n_estimators':best_n}, sampling=best_sampling)
-  print 'Best criterion =', best_criterion
-  print 'RANDOM FOREST -- VARYING DEPTH -- CRITERION =', best_criterion, '-- N_ESTIMATORS =', best_n, '-- SAMPLING =', best_sampling
-  best_depth = random_forest_test_depth(examples, kfolds, -1, np.array([i for i in xrange(num_features)]),
-                                                params={'n_estimators':best_n, 'criterion':best_criterion}, sampling=best_sampling)
-  print 'Best depth =', best_depth
-  print 'RANDOM FOREST -- VARYING MAX FEATURES -- DEPTH =', best_depth, '-- CRITERION =', best_criterion, '-- N_ESTIMATORS =', best_n, '-- SAMPLING =', best_sampling
-  best_max_features = random_forest_test_max_features(examples, kfolds, -1, np.array([i for i in xrange(num_features)]),
-                                                params={'n_estimators':best_n, 'criterion':best_criterion, 'max_depth':best_depth}, sampling=best_sampling)
-  print 'Best max features =', best_max_features
+  print 'ADABOOST WITH SHALLOW DECISION TREES -- VARYING TREE SHALLOWNESS -- SAMPLING =', best_sampling
+  best_tree_depth = adaboost_test_tree_depth(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), sampling=best_sampling)
+  print 'Best tree depth =', best_tree_depth
+  print 'ADABOOST WITH SHALLOW DECISION TREES -- VARYING N_ESTIMATORS -- TREE_DEPTH =', best_tree_depth, '-- SAMPLING =', best_sampling
+  best_n = adaboost_test_n_estimators(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), tree_depth=best_tree_depth, sampling=best_sampling)
+  print 'ADABOOST WITH SHALLOW DECISION TREES -- VARYING BOOSTING ALGO -- N_ESTIMATORS =', best_n, '-- TREE_DEPTH =', best_tree_depth, '-- SAMPLING =', best_sampling
+  best_n = adaboost_test_boosting(examples, kfolds, -1, np.array([i for i in xrange(num_features)]), tree_depth=best_tree_depth,
+                                       params={'n_estimators':best_n}, sampling=best_sampling)
