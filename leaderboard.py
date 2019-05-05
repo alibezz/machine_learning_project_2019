@@ -62,4 +62,4 @@ if __name__ == '__main__':
   num_features = len(leaderboard_features) - 1 #one field is the target
 
   print 'RANDOM FOREST'
-  random_forest(examples_training, examples_test, -1, np.array([leaderboard_features]), params={'n_estimators':1000, 'max_depth':128, 'criterion':'entropy', 'max_features':None})#, sampling='over')
+  random_forest(examples_training, examples_test, -1, np.array([leaderboard_features]), params={'n_estimators':10000, 'max_depth':128, 'criterion':'gini', 'max_features':None}, sampling='over')

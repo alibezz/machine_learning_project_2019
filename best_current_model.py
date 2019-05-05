@@ -13,7 +13,7 @@ from collections import Counter
 from sklearn.utils import resample
 
 RANDOM_STATE = 42
-SKIP = 2
+SKIP = 0
 
 def get_cross_validation_folds(k):
   kf = KFold(n_splits=k, random_state=RANDOM_STATE, shuffle=True)
@@ -99,14 +99,9 @@ if __name__ == '__main__':
   #greedy selection of features
   feature_indices = np.array([i + SKIP for i in xrange(num_features - SKIP)])
   current_indices = []
-  for index in feature_indices:
-    current_indices.append(index)
-    accs, precs, recs, fmeasures = random_forest(examples, kfolds.split(examples), -1, np.array(current_indices),
-                                               params={'n_estimators':5, 'max_depth':32, 'criterion':'entropy', 'max_features':None}, sampling='over')
-    mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
-    print index, '-',mean_overall_fmeasure
-    if mean_overall_fmeasure > current_fmeasure: #adding a feature helped
-      current_fmeasure = mean_overall_fmeasure
-    else: #adding a feature did not help
-      current_indices.pop()
-  print 'average fmeasure for both classes', mean_overall_fmeasure, 'obtained with features', current_indices
+  #for index in feature_indices:
+  #  current_indices.append(index)
+  accs, precs, recs, fmeasures = random_forest(examples, kfolds.split(examples), -1, np.array([i for i in xrange(num_features)]),
+                                               params={'n_estimators':1000, 'max_depth':32, 'criterion':'entropy', 'max_features':None}, sampling='over')
+  mean_overall_fmeasure = (np.mean([i[0] for i in fmeasures]) + np.mean([i[1] for i in fmeasures]))/2
+  print mean_overall_fmeasure
