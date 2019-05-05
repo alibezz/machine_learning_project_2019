@@ -1,0 +1,230 @@
+LOGISTIC REGRESSION -- STANDARD
+average accuracy for folds 0.888215194605
+average precision for class NO 0.889818571755 average precision for class YES 0.471500353433
+average recall for class NO 0.99772158568 average recall for class YES 0.0161083476662
+average fmeasure for both classes 0.48591749911
+LOGISTIC REGRESSION -- VARYING SAMPLING SCHEME
+scheme = None
+average accuracy for folds 0.888215194605
+average precision for class NO 0.889818571755 average precision for class YES 0.471500353433
+average recall for class NO 0.99772158568 average recall for class YES 0.0161083476662
+average fmeasure for both classes 0.48591749911
+scheme = over
+average accuracy for folds 0.668417757688
+average precision for class NO 0.923741515607 average precision for class YES 0.179237511181
+average recall for class NO 0.683183290516 average recall for class YES 0.550833945894
+average fmeasure for both classes 0.527949764397
+scheme = under
+average accuracy for folds 0.661199222255
+average precision for class NO 0.923556217213 average precision for class YES 0.176479943889
+average recall for class NO 0.674493932369 average recall for class YES 0.555378621007
+average fmeasure for both classes 0.523712553863
+Best sampling scheme = over
+LOGISTIC REGRESSION -- VARYING C -- SAMPLING = over
+C = 0.001
+average accuracy for folds 0.612950061938
+average precision for class NO 0.919215706234 average precision for class YES 0.15737176281
+average recall for class NO 0.618728600463 average recall for class YES 0.566916366514
+average fmeasure for both classes 0.492972817853
+C = 0.01
+average accuracy for folds 0.649141818034
+average precision for class NO 0.923597588977 average precision for class YES 0.172659213939
+average recall for class NO 0.659654769445 average recall for class YES 0.565397367858
+average fmeasure for both classes 0.517066979168
+C = 0.1
+average accuracy for folds 0.665771264463
+average precision for class NO 0.923663636576 average precision for class YES 0.178200602252
+average recall for class NO 0.680005177221 average recall for class YES 0.55241708952
+average fmeasure for both classes 0.526384767012
+C = 1
+average accuracy for folds 0.668417757688
+average precision for class NO 0.923741515607 average precision for class YES 0.179237511181
+average recall for class NO 0.683183290516 average recall for class YES 0.550833945894
+average fmeasure for both classes 0.527949764397
+C = 10
+average accuracy for folds 0.668714009607
+average precision for class NO 0.923827514512 average precision for class YES 0.179462756523
+average recall for class NO 0.683472026369 average recall for class YES 0.551195061649
+average fmeasure for both classes 0.528210941992
+C = 100
+average accuracy for folds 0.668743636311
+average precision for class NO 0.923856504761 average precision for class YES 0.179514285598
+average recall for class NO 0.68348309365 average recall for class YES 0.551372003345
+average fmeasure for both classes 0.528260030223
+C = 1000
+average accuracy for folds 0.668753511391
+average precision for class NO 0.923857631222 average precision for class YES 0.179519154382
+average recall for class NO 0.683494164571 average recall for class YES 0.551372003345
+average fmeasure for both classes 0.528266755594
+C = 10000
+average accuracy for folds 0.668753511391
+average precision for class NO 0.923857631222 average precision for class YES 0.179519154382
+average recall for class NO 0.683494164571 average recall for class YES 0.551372003345
+average fmeasure for both classes 0.528266755594
+Best C = 1000
+LOGISTIC REGRESSION -- C = 100 -- VARYING CLASS_WEIGHT -- SAMPLING = over
+class_weight = None
+average accuracy for folds 0.668743636311
+average precision for class NO 0.923856504761 average precision for class YES 0.179514285598
+average recall for class NO 0.68348309365 average recall for class YES 0.551372003345
+average fmeasure for both classes 0.528260030223
+class_weight = balanced
+average accuracy for folds 0.668743636311
+average precision for class NO 0.923856504761 average precision for class YES 0.179514285598
+average recall for class NO 0.68348309365 average recall for class YES 0.551372003345
+average fmeasure for both classes 0.528260030223
+Best class_weight = None
+LOGISTIC REGRESSION -- C = 100 -- class_weight = None -- VARYING PENALTY -- SAMPLING = over
+penalty = l1
+average accuracy for folds 0.66870413599
+average precision for class NO 0.923851888193 average precision for class YES 0.179493880576
+average recall for class NO 0.683438638629 average recall for class YES 0.551372003345
+average fmeasure for both classes 0.528232839869
+penalty = l2
+average accuracy for folds 0.668743636311
+average precision for class NO 0.923856504761 average precision for class YES 0.179514285598
+average recall for class NO 0.68348309365 average recall for class YES 0.551372003345
+average fmeasure for both classes 0.528260030223
+l2
+LOGISTIC REGRESSION -- C = 100 -- class_weight = None -- penalty = l2 -- VARYING SOLVER -- SAMPLING = over
+solver = lbfgs
+average accuracy for folds 0.668674521475
+average precision for class NO 0.923798586333 average precision for class YES 0.17940024473
+average recall for class NO 0.683449874547 average recall for class YES 0.551021682798
+average fmeasure for both classes 0.528152926046
+solver = liblinear
+average accuracy for folds 0.668743636311
+average precision for class NO 0.923856504761 average precision for class YES 0.179514285598
+average recall for class NO 0.68348309365 average recall for class YES 0.551372003345
+average fmeasure for both classes 0.528260030223
+solver = sag
+average accuracy for folds 0.668753510903
+average precision for class NO 0.923857627831 average precision for class YES 0.179519702977
+average recall for class NO 0.683494215264 average recall for class YES 0.551372003345
+average fmeasure for both classes 0.52826692368
+Best solver = sag
+RANDOM FOREST -- STANDARD
+average accuracy for folds 0.887069699924
+average precision for class NO 0.890032098586 average precision for class YES 0.384744550931
+average recall for class NO 0.995942806085 average recall for class YES 0.0200099850889
+average fmeasure for both classes 0.489023685697
+RANDOM FOREST -- VARYING SAMPLING SCHEME
+scheme = None
+average accuracy for folds 0.886961074529
+average precision for class NO 0.889842558148 average precision for class YES 0.367259819959
+average recall for class NO 0.996076936804 average recall for class YES 0.0179652636663
+average fmeasure for both classes 0.487094160068
+scheme = over
+average accuracy for folds 0.881519963827
+average precision for class NO 0.891992262829 average precision for class YES 0.306338466941
+average recall for class NO 0.986040411847 average recall for class YES 0.0491351780948
+average fmeasure for both classes 0.510655883468
+scheme = under
+average accuracy for folds 0.638111524546
+average precision for class NO 0.914621946801 average precision for class YES 0.157088832214
+average recall for class NO 0.653708139992 average recall for class YES 0.51397515536
+average fmeasure for both classes 0.501526814809
+Best sampling scheme = over
+RANDOM FOREST -- VARYING N_ESTIMATORS -- SAMPLING = over
+n_estimators = 5
+average accuracy for folds 0.85716823147
+average precision for class NO 0.894780835895 average precision for class YES 0.218999081699
+average recall for class NO 0.951070775407 average recall for class YES 0.109348422834
+average fmeasure for both classes 0.533947862684
+n_estimators = 10
+average accuracy for folds 0.881697710883
+average precision for class NO 0.891868924094 average precision for class YES 0.304677771917
+average recall for class NO 0.986439733572 average recall for class YES 0.0474960013044
+average fmeasure for both classes 0.509469745173
+n_estimators = 25
+average accuracy for folds 0.88488732572
+average precision for class NO 0.892164366982 average precision for class YES 0.374580241349
+average recall for class NO 0.990108468259 average recall for class YES 0.0469157031783
+average fmeasure for both classes 0.51097487333
+n_estimators = 50
+average accuracy for folds 0.887257325474
+average precision for class NO 0.891343602529 average precision for class YES 0.434076381429
+average recall for class NO 0.994309501478 average recall for class YES 0.0347000132098
+average fmeasure for both classes 0.502133687247
+n_estimators = 75
+average accuracy for folds 0.887168446339
+average precision for class NO 0.891294559445 average precision for class YES 0.429411471643
+average recall for class NO 0.994264859275 average recall for class YES 0.0342422649829
+average fmeasure for both classes 0.501688466974
+n_estimators = 100
+average accuracy for folds 0.887484444518
+average precision for class NO 0.89103318908 average precision for class YES 0.439554075151
+average recall for class NO 0.995042915113 average recall for class YES 0.0308743905387
+average fmeasure for both classes 0.498923410861
+Best number of estimators = 5
+RANDOM FOREST -- VARYING CRITERION -- N_ESTIMATORS = 5 -- SAMPLING = over
+criterion = gini
+average accuracy for folds 0.85705964898
+average precision for class NO 0.894844219952 average precision for class YES 0.219731570427
+average recall for class NO 0.950850850008 average recall for class YES 0.110125359622
+average fmeasure for both classes 0.534320180931
+criterion = entropy
+average accuracy for folds 0.856486868486
+average precision for class NO 0.89483097235 average precision for class YES 0.217782673198
+average recall for class NO 0.950139401582 average recall for class YES 0.110680241254
+average fmeasure for both classes 0.534190604442
+Best criterion = gini
+RANDOM FOREST -- VARYING DEPTH -- CRITERION = gini -- N_ESTIMATORS = 5 -- SAMPLING = over
+max_depth = 2
+average accuracy for folds 0.592351293025
+average precision for class NO 0.917508323236 average precision for class YES 0.152455482879
+average recall for class NO 0.594685668414 average recall for class YES 0.574407445879
+average fmeasure for both classes 0.480181038404
+max_depth = 4
+average accuracy for folds 0.629293284135
+average precision for class NO 0.921532575223 average precision for class YES 0.164312755257
+average recall for class NO 0.636994250573 average recall for class YES 0.567598122736
+average fmeasure for both classes 0.503887827045
+max_depth = 8
+average accuracy for folds 0.606274766107
+average precision for class NO 0.924716218353 average precision for class YES 0.162158701207
+average recall for class NO 0.606231566289 average recall for class YES 0.606332035726
+average fmeasure for both classes 0.493903718525
+max_depth = 16
+average accuracy for folds 0.703918394197
+average precision for class NO 0.912270712877 average precision for class YES 0.172481900693
+average recall for class NO 0.737710803063 average recall for class YES 0.434998583642
+average fmeasure for both classes 0.531290340114
+max_depth = 32
+average accuracy for folds 0.833280667864
+average precision for class NO 0.8967541469 average precision for class YES 0.195258699867
+average recall for class NO 0.918054002227 average recall for class YES 0.158228305157
+average fmeasure for both classes 0.540980751693
+max_depth = 64
+average accuracy for folds 0.858116253312
+average precision for class NO 0.894697658891 average precision for class YES 0.220703359018
+average recall for class NO 0.952396061894 average recall for class YES 0.107293478447
+average fmeasure for both classes 0.533503794116
+max_depth = None
+average accuracy for folds 0.858501387779
+average precision for class NO 0.8944837228 average precision for class YES 0.21896893717
+average recall for class NO 0.953172643603 average recall for class YES 0.104504830807
+average fmeasure for both classes 0.532184386228
+Best depth = 32
+RANDOM FOREST -- VARYING MAX FEATURES -- DEPTH = 32 -- CRITERION = gini -- N_ESTIMATORS = 5 -- SAMPLING = over
+max_features = auto
+average accuracy for folds 0.835719758075
+average precision for class NO 0.896538756589 average precision for class YES 0.196592678438
+average recall for class NO 0.921429115695 average recall for class YES 0.153133216873
+average fmeasure for both classes 0.540429104368
+max_features = sqrt
+average accuracy for folds 0.838553917316
+average precision for class NO 0.896510592306 average precision for class YES 0.200203742144
+average recall for class NO 0.925075884555 average recall for class YES 0.149552574624
+average fmeasure for both classes 0.540836444319
+max_features = log2
+average accuracy for folds 0.829656514393
+average precision for class NO 0.896073806466 average precision for class YES 0.185525009104
+average recall for class NO 0.914317379801 average recall for class YES 0.15550154383
+average fmeasure for both classes 0.537086392679
+max_features = None
+average accuracy for folds 0.82648667312
+average precision for class NO 0.898007737045 average precision for class YES 0.195768034899
+average recall for class NO 0.907815957362 average recall for class YES 0.178871862726
+average fmeasure for both classes 0.544864968163
+Best max features = None
