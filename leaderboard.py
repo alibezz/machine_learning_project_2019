@@ -12,10 +12,10 @@ from collections import Counter
 from sklearn.utils import resample
 
 RANDOM_STATE = 42
-SKIP = 2
+SKIP = 1
 
 def separate_features_and_target(examples, target_index, feature_indices):
-  X = np.array([element[feature_indices][0] for element in examples])
+  X = np.array([element[feature_indices] for element in examples])
   y = np.array([element[target_index] for element in examples])  
   return X, y
 
@@ -32,34 +32,78 @@ def get_fmeasure(precision, recall):
   return (2.*precision*recall)/(precision+recall)
 
   
-def random_forest(examples_training, examples_test, target_index, feature_indices, params={}, sampling=None):
+def random_forest(examples_training, examples_test, target_index, features_training, features_test, params={}, sampling=None):
   rf = RandomForestClassifier(**params)
   precs = []; recs = []; accs = []; fmeasures = []
-  X_train, y_train = separate_features_and_target(examples_training, target_index, feature_indices)
-  print X_train[0]
+  X_train, y_train = separate_features_and_target(examples_training, target_index, features_training)
   #bootstrap training samples in the minority class 
   X_train, y_train = bootstrap_training(X_train, y_train)
   clf = rf.fit(X_train, y_train)
-  X_test = np.array([i[1:] for i in examples_test])
+  X_test = np.array([element[features_test] for element in examples_test])
   y_pred = clf.predict(X_test)
-  with open('leaderboard_output.txt', 'w') as f:
+  with open('test_outputs.csv', 'w') as f:
     f.write('id_num,quidditch_league_player\n')
     for index, elem in enumerate(y_pred):
-      f.write(str(index+1) + str(',') + str(int(elem)) + '\n')
+      if int(elem) == 0:
+        f.write(str(index+1) + str(',') + 'NO\n')
+      else:
+        f.write(str(index+1) + str(',') + 'YES\n')
 
 def process_input(filename):
-  lines = [np.array([float(i) for i in l.strip().split(',')]) for l in open(filename, 'r').readlines()[1:]] #disconsidering header
-  return np.array(lines)
+  lines = open(filename, 'r').readlines()
+  print lines[0]
+  print lines[1]
+  examples = [np.array([float(i) for i in l.strip().split(',')]) for l in lines[1:]]
+  header = lines[0]
+  features = header.strip().split(',')
+  return np.array(examples), np.array(features)
+
+def determine_feature_intersection(features_training, features_test):
+  training_dict = {}
+  test_dict = {}
+  for index, elem in enumerate(features_training):
+    training_dict[elem] = index
+  for index, elem in enumerate(features_test):
+    test_dict[elem] = index
+  key_intersection = list(set(training_dict.keys()) & set(test_dict.keys()))
+  training_indices = []
+  test_indices = []
+  for relevant_key in key_intersection:
+    training_indices.append(training_dict[relevant_key])
+    test_indices.append(test_dict[relevant_key])
+  return sorted(training_indices), sorted(test_indices)
+
+def get_cross_validation_folds(k):
+  kf = KFold(n_splits=k, random_state=RANDOM_STATE, shuffle=True)
+  return kf
+
+def random_forest2(examples, kfolds, target_index, feature_indices, params={}, sampling=None):
+  rf = RandomForestClassifier(**params)
+  precs = []; recs = []; accs = []; fmeasures = []
+  for train_index, test_index in kfolds:
+    X_train, y_train = separate_features_and_target(examples[train_index], target_index, feature_indices)
+    if sampling == 'over': #bootstrap training samples in the minority class 
+      X_train, y_train = bootstrap_training(X_train, y_train)
+    elif sampling == 'under': #reduce the number of samples in the majority class
+      X_train, y_train = undersample_training(X_train, y_train)
+    clf = rf.fit(X_train, [int(i) for i in y_train])
+    X_test, y_test = separate_features_and_target(examples[test_index], target_index, feature_indices)
+    y_pred = clf.predict(X_test)
+    results = precision_recall_fscore_support(y_test, y_pred)
+    precs.append(results[0])
+    recs.append(results[1])
+    accs.append(clf.score(X_test, y_test))
+    fmeasures.append((get_fmeasure(results[0][0], results[1][0]), get_fmeasure(results[0][1], results[1][1])))
+  return accs, precs, recs, fmeasures 
+
 
 if __name__ == '__main__':
   '''
   argv[1] => training dataset
   argv[2] => test dataset
   '''
-  examples_training = process_input(sys.argv[1])
-  examples_test = process_input(sys.argv[2])
-  leaderboard_features = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 48, 49, 52, 53, 54, 55, 56, 57, 58, 59, 62, 64, 65, 66, 69, 72, 73, 74, 75, 78, 79, 80, 81, 82, 83, 84, 91, 95, 96, 97, 98, 99, 101, 102, 103, 104, 105, 107, 109, 110, 111, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 128]
-  num_features = len(leaderboard_features) - 1 #one field is the target
-
+  examples_training, features_training = process_input(sys.argv[1])
+  examples_test, features_test = process_input(sys.argv[2])
+  relevant_training_feature_ids, relevant_test_feature_ids = determine_feature_intersection(features_training, features_test)
   print 'RANDOM FOREST'
-  random_forest(examples_training, examples_test, -1, np.array([leaderboard_features]), params={'n_estimators':10000, 'max_depth':128, 'criterion':'gini', 'max_features':None}, sampling='over')
+  random_forest(examples_training, examples_test, -1, relevant_training_feature_ids, relevant_test_feature_ids, params={'n_estimators':5, 'max_depth':32, 'criterion':'entropy', 'max_features':None}, sampling='over')
